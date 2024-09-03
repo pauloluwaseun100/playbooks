@@ -1,9 +1,16 @@
-  collections:
-   - ansible.tower
+  # collections:
+  #  - ansible.tower
 
+  # tasks:
+  # - name: Create a new organization
+  #   tower_organization:
+  #     name: "TestORG"
+  #     description: "test org"
+  #     state: present
+
+  - name: Hello World Sample
+  hosts: all
   tasks:
-  - name: Create a new organization
-    tower_organization:
-      name: "TestORG"
-      description: "test org"
-      state: present
+    - name: Hello Message
+      debug:
+        msg: "Hello World!"
