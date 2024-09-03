@@ -1,0 +1,9 @@
+  collections:
+   - ansible.tower
+
+  tasks:
+  - name: Create a new organization
+    tower_organization:
+      name: "TestORG"
+      description: "test org"
+      state: present
