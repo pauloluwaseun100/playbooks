@@ -1,5 +1,5 @@
 ---
-- hosts: hosts
+- hosts: all
   tasks:
   - name: Update all installed packages using YUM module
     yum:
@@ -12,7 +12,7 @@
   - name: Remove packates not needed anymore
     yum:
       autoremove: yes
-      
+
   - name: Install Git
     yum:
       name: git
