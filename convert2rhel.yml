@@ -1,0 +1,16 @@
+---
+- name: Convert
+  hosts: all
+  strategy: free
+  become: true
+  force_handlers: true
+  vars:
+    rhsm_username: MY_USERNAME
+    rhsm_password: MY_PASSWORD
+    rhsm_org: MY_ORG
+    rhsm_activation_key: MY_ACTIVATION_KEY
+
+  tasks:
+    - name: Perform OS conversion
+      ansible.builtin.import_role:
+        name: infra.convert2rhel.convert
