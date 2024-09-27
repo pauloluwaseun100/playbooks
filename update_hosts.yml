@@ -13,12 +13,6 @@
     yum:
       autoremove: yes
 
-  - name: Install Git
-    yum:
-      name: git
-      state: latest
-
-
   - name: Reboot when packages were updated
     reboot:
     when: yum_update_status.changed
