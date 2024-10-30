@@ -5,10 +5,10 @@
   become: true
   force_handlers: true
   vars:
-    satellite_organization: {{ SATELLITE_ORGANIZATION }}
-    satellite_activation_key_leapp: {{ SATELLITE_ACTIVATION_KEY }}
-    satellite_activation_key_post_leapp: {{ SATELLITE_ACTIVATION_KEY_POST }}
-    leapp_upgrade_opts: --target 8.8
+    satellite_organization: UBA Group
+    satellite_activation_key_leapp: Satellite Activation Key
+    satellite_activation_key_post_leapp: Satellite Activation Key
+    leapp_upgrade_opts: --target 8.10
     update_grub_to_grub_2: true
     selinux_mode: permissive
   tasks:
