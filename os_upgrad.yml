@@ -13,7 +13,7 @@
     selinux_mode: permissive
   tasks:
     - name: Install Leapp package
-      ansible.builtin.shell: subscription-manager repo --enable rhel-7-server-extras-rpms
+      ansible.builtin.shell: subscription-manager repos --enable rhel-7-server-extras-rpms
       
     - name: Install leapp and leap Upgrade
       yum:
