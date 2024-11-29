@@ -19,14 +19,14 @@
       yum:
         state: present
         name:
-          - leap
+          - leapp
           - leapp-upgrade
 
     - name: Create the answer file
       ansible.builtin.shell: cp answerfile /var/log/leapp/
 
     - name: Run the leapp preupgrade report
-      ansible.builtin.shell: leap preupgrade
+      ansible.builtin.shell: leapp preupgrade
         
     - name: Perform OS upgrade
       ansible.builtin.import_role:
