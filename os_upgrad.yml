@@ -13,17 +13,17 @@
     selinux_mode: permissive
   tasks:
     - name: Install Leapp package
-        ansible.builtin.shell: subscription-manager repo --enable rhel-7-server-extras-rpms
+      ansible.builtin.shell: subscription-manager repo --enable rhel-7-server-extras-rpms
       
     - name: Install leapp and leap Upgrade
-     	  yum: leapp leapp-upgrade
+      yum: leapp leapp-upgrade
 
     - name: Create the answer file
-      	ansible.builtin.shell: cp answerfile /var/log/leapp/
+      ansible.builtin.shell: cp answerfile /var/log/leapp/
 
     - name: Run the leapp preupgrade report
-    	  ansible.builtin.shell: leap preupgrade
+      ansible.builtin.shell: leap preupgrade
         
     - name: Perform OS upgrade
-        ansible.builtin.import_role:
-          name: infra.leapp.upgrade
+      ansible.builtin.import_role:
+        name: infra.leapp.upgrade
