@@ -16,7 +16,11 @@
       ansible.builtin.shell: subscription-manager repo --enable rhel-7-server-extras-rpms
       
     - name: Install leapp and leap Upgrade
-      yum: leapp leapp-upgrade
+      yum:
+        state: present
+        name:
+          - leap
+          - leapp-upgrade
 
     - name: Create the answer file
       ansible.builtin.shell: cp answerfile /var/log/leapp/
