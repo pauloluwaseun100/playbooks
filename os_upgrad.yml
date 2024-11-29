@@ -23,7 +23,7 @@
           - leapp-upgrade
 
     - name: Create the answer file
-      ansible.builtin.shell: cp ./answerfile /var/log/leapp/
+      ansible.builtin.shell: echo '[remove_pam_pkcs11_module_check] \n confirm = True ' >> /var/log/leapp/answerfile
 
     - name: Run the leapp preupgrade report
       ansible.builtin.shell: leapp preupgrade
