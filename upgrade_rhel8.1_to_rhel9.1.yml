@@ -1,0 +1,149 @@
+---
+- name: Upgrade from RHEL 8 to RHEL 9 using Leapp
+  hosts: all
+  become: true
+  vars:
+    target_version: "9.4"
+
+  tasks:
+    - name: Clean previous Leapp temporary files
+      ansible.builtin.file:
+        path: /root/tmp_leapp_py3
+        state: absent
+
+    - name: List installed subscription manager products
+      ansible.builtin.command: subscription-manager list --installed
+      register: subscription_manager_list
+      ignore_errors: true
+      changed_when: false
+
+    - name: Remove any remaining Leapp packages
+      block:
+        - name: Remove yum configuration exclusion
+          ansible.builtin.command: yum config-manager --save --setopt exclude=''
+          ignore_errors: true
+
+        - name: List and remove remaining kernel modules
+          ansible.builtin.shell: |
+            cd /lib/modules && ls -d *.el7* | while read version; do
+              [ -x /usr/sbin/weak-modules ] && /usr/sbin/weak-modules --remove-kernel "$version"
+              /bin/kernel-install remove "$version" /lib/modules/"$version"/vmlinuz
+            done
+          ignore_errors: true
+
+        - name: Remove specific Leapp packages
+          ansible.builtin.shell: yum remove leapp-deps-el8 leapp-repository-deps-el8 -y
+          ignore_errors: true
+
+        - name: Remove old RPM packages I
+          ansible.builtin.shell: rpm -qa | grep -e '\.el[67]' | grep -vE '^(gpg-pubkey|libmodulemd|katello-ca-consumer)' | sort
+          ignore_errors: true
+
+        - name: Remove old RPM packages II
+          ansible.builtin.shell: yum remove -y kernel-workaround $(rpm -qa | grep \.el7 | grep -vE 'gpgpubkey| libmodulemd|katello-ca-consumer')
+          ignore_errors: true
+
+        - name: Remove old kernel directories
+          ansible.builtin.file:
+            path: /lib/modules/*el7*
+            state: absent
+          ignore_errors: true
+
+    - name: Update all packages
+      ansible.builtin.yum:
+        name: "*"
+        state: latest
+
+    - name: Check running kernel
+      ansible.builtin.command: uname -r
+      register: running_kernel
+      changed_when: false
+
+    - name: Reboot the server to load updated kernel
+      ansible.builtin.reboot:
+        reboot_timeout: 600
+          
+    - name: Install Leapp upgrade tool
+      ansible.builtin.yum:
+        name:
+          - leapp-upgrade
+        state: present
+
+    - name: Comment "AllowZoneDrifting" in firewalld config
+      ansible.builtin.lineinfile:
+        path: /etc/firewalld/firewalld.conf
+        regexp: "^AllowZoneDrifting"
+        line: "#AllowZoneDrifting"
+        backup: yes
+
+    - name: Ensure root login is disabled in SSH config
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?PermitRootLogin"
+        line: "PermitRootLogin no"
+        backup: yes
+      notify: Restart sshd
+
+    - name: Check Leapp version
+      ansible.builtin.command: leapp --version
+      register: leapp_version
+      ignore_errors: true
+      changed_when: false
+
+    - name: Clear dnf version locks
+      ansible.builtin.command: dnf versionlock clear
+      register: versionlock_clear
+      ignore_errors: true
+      changed_when: false
+
+    - name: Install VDO package
+      ansible.builtin.yum:
+        name:
+          - vdo
+          - kmod-kvdo
+        state: present
+        
+    - name: Ensure Leapp answerfile is present 
+      ansible.builtin.command: leapp answer --add --section remove_pam_pkcs11_module_check.confirm=True
+      changed_when: false
+
+    - name: Confirm VDO check in Leapp answer file
+      ansible.builtin.command: leapp answer --section check_vdo.confirm=True
+      register: leapp_answer
+      ignore_errors: false
+      changed_when: false
+
+    - name: Run Leapp preupgrade check
+      ansible.builtin.shell: ulimit -n 16384 ; leapp preupgrade --target {{ target_version }}
+      register: leapp_preupgrade
+      failed_when: "'Target OS version not supported' in leapp_preupgrade.stderr"
+      ignore_errors: false
+
+    - name: Run Leapp upgrade
+      ansible.builtin.shell: ulimit -n 16384 ; leapp upgrade --target {{ target_version }}
+      register: leapp_upgrade
+      failed_when: "'Leapp upgrade completed with errors' in leapp_upgrade.stderr"
+      ignore_errors: false
+
+    - name: Send a copy of the Leapp report to /root/
+      ansible.builtin.command: cp /var/log/leapp/leapp-report.txt /root/
+      ignore_errors: false
+
+    - name: Final reboot after upgrade
+      ansible.builtin.reboot:
+        reboot_timeout: 2500
+
+    - name: Verify OS version after upgrade
+      ansible.builtin.shell: cat /etc/redhat-release
+      register: os_version
+      changed_when: false
+
+    - name: Print final OS version
+      ansible.builtin.debug:
+        msg: "Upgrade complete. OS version is now: {{ os_version.stdout }}"
+
+  handlers:
+    - name: Restart sshd
+      ansible.builtin.service:
+        name: sshd
+        state: restarted
