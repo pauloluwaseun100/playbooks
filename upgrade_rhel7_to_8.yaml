@@ -86,7 +86,7 @@
       changed_when: false
 
     - name: Run Leapp preupgrade
-      ansible.builtin.command: leapp preupgrade
+      ansible.builtin.command: leapp preupgrade --target 8.10
       register: leapp_preupgrade
       failed_when: "'Target OS version not supported' in leapp_preupgrade.stderr"
 
