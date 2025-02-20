@@ -5,10 +5,10 @@
   become: true
   force_handlers: true
   vars:
-    rhsm_username: {{ RHSM_USERNAME }}
-    rhsm_password: {{ RHSM_PASSWORD }}
-    rhsm_org: {{ RHSM_ORG }}
-    rhsm_activation_key: {{ RHSM_ACTIVATION_KEY }}
+    rhsm_username: "{{ RHSM_USERNAME }}"
+    rhsm_password: "{{ RHSM_PASSWORD }}"
+    rhsm_org: "{{ RHSM_ORG }}"
+    rhsm_activation_key: "{{ RHSM_ACTIVATION_KEY }}"
 
   tasks:
     - name: Perform OS conversion
