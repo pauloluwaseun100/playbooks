@@ -3,10 +3,10 @@
   hosts: all
   become: yes
   vars:
-    rhel_org: MY_ORG
-    rhel_activation_key: MY_ACTIVATION_KEY
-    rhel_username: MY_USERNAME
-    rhel_password: MY_PASSWORD
+    rhel_org: "{{ RHSM_ORG }}"
+    rhel_activation_key: "{{ RHSM_ACTIVATION_KEY }}"
+    rhel_username: "{{ RHSM_USERNAME }}"
+    rhel_password: "{{ RHSM_PASSWORD }}"
     gpg_key_url: "https://www.redhat.com/security/data/fd431d51.txt"
     uep_cert_url: "https://ftp.redhat.com/redhat/convert2rhel/redhat-uep.pem"
 
