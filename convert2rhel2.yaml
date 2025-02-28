@@ -99,8 +99,10 @@
         dest: /etc/convert2rhel.ini
         content: |
           [subscription_manager]
-          username = {{ rhel_username }}
-          password = {{ rhel_password }}
+          org = {{ rhel_org }}
+          activation_key = {{ rhel_activation_key }}
+          username = {{ satellite_username }}
+          password = {{ satellite_password }}
         mode: "0600"
       tags: config
 
