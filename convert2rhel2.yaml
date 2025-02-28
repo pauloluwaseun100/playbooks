@@ -101,8 +101,8 @@
           [subscription_manager]
           org = {{ rhel_org }}
           activation_key = {{ rhel_activation_key }}
-          username = {{ satellite_username }}
-          password = {{ satellite_password }}
+          username = {{ rhel_username }}
+          password = {{ rhel_password }}
         mode: "0600"
       tags: config
 
